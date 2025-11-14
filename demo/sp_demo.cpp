@@ -64,6 +64,17 @@ bool send_group_material_to_vehicle(const std::vector<uint8_t>& enc_gm_ser) {
     SocketManager::closeSock(srcok);
     return true;
 }
+bool export_public_key(const std::vector<uint8_t>& spparams_ser)
+{
+    std::cout<<"Waiting to export the public key"<<std::endl;
+    int srcok=SocketManager::createServer(5001);
+    int client=SocketManager::acceptClient(srcok);
+    std::vector<uint8_t> request=SocketManager::recvData(client); // receive request
+    SocketManager::sendData(client, spparams_ser);
+    SocketManager::closeSock(client);
+    SocketManager::closeSock(srcok);
+    return true;
+}
 int main() {
     ps::init_relic();
     SP sp("sp1");
@@ -86,6 +97,7 @@ int main() {
         std::cout<<"2- Signcrypt a message and send ciphertext to Edge"<<std::endl;
         std::cout<<"3- Generate group secret material for Vehicle and send to Vehicle"<<std::endl;
         std::cout<<"4- (Benchmark) Signcrypt a message and send ciphertext to Edge"<<std::endl;
+        std::cout<<"5- Export SP public key"<<std::endl;
         std::cout<<"-1- Exit"<<std::endl;
         std::cin >> n;
         if(n==1){
@@ -126,6 +138,11 @@ int main() {
             });
 
             std::cout<<"The average end-to-end latency of signcryption and re-encryption including the network latecny:"<<avg_ns<<"|"<<std_dev<<std::endl;
+        }
+        else if(n==5)
+        {
+            std::vector<uint8_t> spparams_ser=spp.export_serialized();
+            export_public_key(spparams_ser);
         }
     } while (n!=-1);
     

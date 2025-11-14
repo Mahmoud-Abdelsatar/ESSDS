@@ -43,36 +43,64 @@ bool send_reenc_ct_to_vehicle(const std::vector<uint8_t>& reenc_ct) {
     SocketManager::closeSock(srcok);
     return true;
 }
+bool import_sp_public_key(std::vector<uint8_t> &spparams_ser)
+{
+     std::cout << "Receiving the public key from SP" << std::endl;
+    // e.g., open TCP connection, receive data, close connection
+    int sock=SocketManager::connectTo("127.0.0.1",5001);
+    // set string message "Request Re-encrypted CT" in vector variable.
+    std::vector<uint8_t> msg;
+    msg.insert(msg.end(), {'R','e','q','u','e','s','t'});
+    SocketManager::sendData(sock, msg);
+    spparams_ser=SocketManager::recvData(sock);
+    // spp.import_serialized(spparams_ser);
+    SocketManager::closeSock(sock);
+    //     
+    return true;
+}
 int main() {
     ps::init_relic();
     Edge edge;
     ps::SPPublicParams spp;
-    try
-    {
-        spp.import_from_file("sp_params.dat");
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        return -1;
-    }
+    // try
+    // {
+    //     spp.import_from_file("sp_params.dat");
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << '\n';
+    //     return -1;
+    // }
     
-    edge.setSPParams(spp);
+    // edge.setSPParams(spp);
     std::cout << "Edge initialized and set SP parameters." << std::endl;
     int n=0;
     std::vector<uint8_t> reenc_ct;
     do
     {
         std::cout<<"Please select one of the following optopns:"<<std::endl;
-        std::cout<<"1- Receive Re-encryption Key from SP"<<std::endl;
-        std::cout<<"2- Receive Ciphertext from SP"<<std::endl;
-        std::cout<<"3- Send Re-encrypted Ciphertext for Vehicle"<<std::endl;
-        std::cout<<"4- (Benchmarked) Receive Ciphertext from SP"<<std::endl;
-        std::cout<<"5- (Benchmarked) Send Re-encrypted Ciphertext for Vehicle"<<std::endl;
+        std::cout<<"1- Import the SP public key"<<std::endl;
+        std::cout<<"2- Receive Re-encryption Key from SP"<<std::endl;
+        std::cout<<"3- Receive Ciphertext from SP"<<std::endl;
+        std::cout<<"4- Send Re-encrypted Ciphertext for Vehicle"<<std::endl;
+        std::cout<<"5- (Benchmarked) Receive Ciphertext from SP"<<std::endl;
+        std::cout<<"6- (Benchmarked) Send Re-encrypted Ciphertext for Vehicle"<<std::endl;
         
         std::cout<<"-1- Exit"<<std::endl;
         std::cin >> n;
-        if(n==1){
+        if(n==1)
+        {
+            std::vector<uint8_t> spparams_ser;
+            bool ok=import_sp_public_key(spparams_ser);
+            if(!ok)
+            {
+                std::cerr << "Vehicle failed to receive the public key from SP." << std::endl;
+                return -1;
+            }
+            spp.import_serialized(spparams_ser);
+            edge.setSPParams(spp);
+        }
+        else if(n==2){
             // Edge receives reenc key  
             std::vector<uint8_t> rk_ser; // Placeholder: actual code to receive rk_ser from network
             // For demo, we can read from file or assume rk_ser is set
@@ -80,20 +108,20 @@ int main() {
             bool ok = edge.accept_reenc_key(rk_ser, 1);
             std::cout << "Edge accepted reenc? " << ok << std::endl;
         }
-        else if(n==2){
+        else if(n==3){
             // Edge receives ciphertext from SP
             std::vector<uint8_t> ct_ser; // Placeholder: actual code to receive ct_ser from network
             // For demo, we can read from file or assume ct_ser is set
             receive_ct_from_sp(ct_ser, edge, reenc_ct);
             
         }
-        else if(n==3){
+        else if(n==4){
             // Edge send re-encrypted CT to Vehicle
             // Placeholder: actual network code to send reenc_ct to Vehicle
             std::cout << "Edge sent re-encrypted ciphertext to Vehicle." << std::endl;
             send_reenc_ct_to_vehicle(reenc_ct);
         }
-        else if(n==4){
+        else if(n==5){
             // Edge receives ciphertext from SP
             std::vector<uint8_t> ct_ser; // Placeholder: actual code to receive ct_ser from network
             // For demo, we can read from file or assume ct_ser is set
@@ -101,7 +129,7 @@ int main() {
                 receive_ct_from_sp(ct_ser, edge, reenc_ct);
             
         }
-        else if(n==5){
+        else if(n==6){
             // Edge send re-encrypted CT to Vehicle
             // Placeholder: actual network code to send reenc_ct to Vehicle
             std::cout << "Edge sent re-encrypted ciphertext to Vehicle." << std::endl;

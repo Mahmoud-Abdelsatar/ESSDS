@@ -109,6 +109,22 @@ struct SPPublicParams
 {
     ep_t psk1_sp; // g^{ssk_group}
     gt_t psk2_sp; // z^{ssk_group}
+    std::vector<uint8_t> export_serialized() const
+    {
+        auto psk1_ser = ps::serialize_ep(psk1_sp);
+        auto psk2_ser = ps::serialize_gt(psk2_sp);
+        std::vector<uint8_t> out(psk1_ser);
+        out.insert(out.end(),psk2_ser.begin(),psk2_ser.end());
+        return out;
+    }
+    void import_serialized(std::vector<uint8_t> & spparams_ser)
+    {
+        size_t ep_len=ep_size_bin(psk1_sp,1);
+        size_t gt_len=gt_size_bin(psk2_sp,1);
+        ep_read_bin(psk1_sp,spparams_ser.data(),ep_len);
+        gt_read_bin(psk2_sp,spparams_ser.data()+ep_len,gt_len);
+    }
+
     void export_to_file(const std::string &filename) const {
         auto psk1_ser = ps::serialize_ep(psk1_sp);
         auto psk2_ser = ps::serialize_gt(psk2_sp);

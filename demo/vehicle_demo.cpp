@@ -60,20 +60,36 @@ bool get_reenc_ct_from_edge(std::vector<uint8_t>& reenc_ct_ser) {
     //     
     return true;
 }
+bool import_sp_public_key(std::vector<uint8_t> &spparams_ser)
+{
+     std::cout << "Receiving the public key from SP" << std::endl;
+    // e.g., open TCP connection, receive data, close connection
+    int sock=SocketManager::connectTo("127.0.0.1",5001);
+    // set string message "Request Re-encrypted CT" in vector variable.
+    std::vector<uint8_t> msg;
+    msg.insert(msg.end(), {'R','e','q','u','e','s','t'});
+    SocketManager::sendData(sock, msg);
+    spparams_ser=SocketManager::recvData(sock);
+    // spp.import_serialized(spparams_ser);
+    SocketManager::closeSock(sock);
+    //     
+    return true;
+}
+
 int main() {
     ps::init_relic();
     Vehicle v("veh1");
     ps::SPPublicParams spp;
-    try
-    {
-        spp.import_from_file("sp_params.dat");
-        v.setSPParams(spp);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        return -1;
-    }
+    // try
+    // {
+    //     spp.import_from_file("sp_params.dat");
+    //     v.setSPParams(spp);
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << '\n';
+    //     return -1;
+    // }
     // spp.import_from_file("sp_params.dat");
     
    
@@ -85,13 +101,26 @@ int main() {
     do
     {
         std::cout<<"Please select one of the following optopns:"<<std::endl;
-        std::cout<<"1- Subscribe and receive group secret material from SP"<<std::endl;
-        std::cout<<"2- Request and receive re-encrypted ciphertext from Edge"<<std::endl;
-        std::cout<<"3- (Benchmarked) Request and receive re-encrypted ciphertext from Edge"<<std::endl;
+        std::cout<<"1- Import the SP public key"<<std::endl;
+        std::cout<<"2- Subscribe and receive group secret material from SP"<<std::endl;
+        std::cout<<"3- Request and receive re-encrypted ciphertext from Edge"<<std::endl;
+        std::cout<<"4- (Benchmarked) Request and receive re-encrypted ciphertext from Edge"<<std::endl;
         
         std::cout<<"-1- Exit"<<std::endl;
         std::cin >> n;
-        if(n==1){
+        if(n==1)
+        {
+            std::vector<uint8_t> spparams_ser;
+            bool ok=import_sp_public_key(spparams_ser);
+            if(!ok)
+            {
+                std::cerr << "Vehicle failed to receive the public key from SP." << std::endl;
+                return -1;
+            }
+            spp.import_serialized(spparams_ser);
+            v.setSPParams(spp);
+        }
+        else if(n==2){
             // vehicle subscribes and receives group secret material from SP
             std::vector<uint8_t> enc_gm_ser; // placeholder: actual code to receive from network
             // For demo, we can read from file or assume enc_gm_ser is set
@@ -108,7 +137,7 @@ int main() {
             v.receive_group_secret_material_serialized(enc_gm_ser);
             std::cout << "Vehicle received group secret material." << std::endl;
         }
-        else if(n==2){
+        else if(n==3){
             // Vehicle connects to edge and requests re-encrypted ciphertext
             std::vector<uint8_t> reenc_ct_ser; // placeholder: actual code to receive from edge
             // For demo, we can read from file or assume reenc_ct_ser is set
@@ -130,7 +159,7 @@ int main() {
                 std::cout << "Vehicle failed to unsigncrypt the message." << std::endl;
             }
         }
-         else if(n==3){
+         else if(n==4){
             // Vehicle connects to edge and requests re-encrypted ciphertext
             std::vector<uint8_t> reenc_ct_ser; // placeholder: actual code to receive from edge
             // For demo, we can read from file or assume reenc_ct_ser is set
