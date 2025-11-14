@@ -88,7 +88,7 @@ void print_relic_curves_paramters()
 }
 int main() {
     ps::init_relic();
-    ps::set_static_generators();
+    // ps::set_static_generators();
     Edge edge;
     print_relic_curves_paramters();
     ps::SPPublicParams spp;

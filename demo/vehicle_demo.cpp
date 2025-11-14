@@ -105,7 +105,7 @@ void print_relic_curves_paramters()
 }
 int main() {
     ps::init_relic();
-    ps::set_static_generators();
+    // ps::set_static_generators();
 
     Vehicle v("veh1");
     print_relic_curves_paramters();

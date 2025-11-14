@@ -9,6 +9,7 @@ namespace ps {
 void init_relic() {
     if (core_init() != RLC_OK) throw std::runtime_error("RELIC core_init failed");
     if (pc_param_set_any() != RLC_OK) throw std::runtime_error("RELIC pairings not available");
+    ep_param_set(BN_P256);
 }
 std::vector<uint8_t> hex_to_bytes(const std::string &hex) {
     if (hex.size() % 2 != 0) {
@@ -49,35 +50,35 @@ void get_static_g2(ep2_t g2)
     // ep2_free(G2);
     // return G2;
 }
-void set_static_generators() {
+// void set_static_generators() {
 
-       ep_t G1;
-    ep2_t G2;
-    ep_t CUR_G1;
-    ep2_t CUR_G2;
+//        ep_t G1;
+//     ep2_t G2;
+//     ep_t CUR_G1;
+//     ep2_t CUR_G2;
 
-    ep_new(G1);
-    ep2_new(G2);
-    ep_new(CUR_G1);
-    ep2_new(CUR_G2);
+//     ep_new(G1);
+//     ep2_new(G2);
+//     ep_new(CUR_G1);
+//     ep2_new(CUR_G2);
 
-    // read your custom points
-    ep_read_bin(G1, G1_BYTES, sizeof(G1_BYTES));
-    ep2_read_bin(G2, G2_BYTES, sizeof(G2_BYTES));
+//     // read your custom points
+//     ep_read_bin(G1, G1_BYTES, sizeof(G1_BYTES));
+//     ep2_read_bin(G2, G2_BYTES, sizeof(G2_BYTES));
 
-    // get pointers to RELIC's global generators
-    ep_curve_get_gen(CUR_G1);
-    ep2_curve_get_gen(CUR_G2);
+//     // get pointers to RELIC's global generators
+//     ep_curve_get_gen(CUR_G1);
+//     ep2_curve_get_gen(CUR_G2);
 
-    // overwrite RELIC global generators
-    ep_copy(CUR_G1, G1);
-    ep2_copy(CUR_G2, G2);
+//     // overwrite RELIC global generators
+//     ep_copy(CUR_G1, G1);
+//     ep2_copy(CUR_G2, G2);
 
-    ep_free(G1);
-    ep2_free(G2);
-    ep_free(CUR_G1);
-    ep2_free(CUR_G2);
-}
+//     ep_free(G1);
+//     ep2_free(G2);
+//     ep_free(CUR_G1);
+//     ep2_free(CUR_G2);
+// }
 void cleanup_relic() { core_clean(); }
 
 std::vector<uint8_t> serialize_ep(const ep_t &e) {

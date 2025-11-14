@@ -12,7 +12,7 @@ namespace ps {
 // Initialize and finalize the crypto layer
 void init_relic();
 void cleanup_relic();
-void set_static_generators();
+// void set_static_generators();
 void get_static_g1(ep_t);
 void get_static_g2(ep2_t);
 // Serialize helpers for RELIC types
