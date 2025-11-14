@@ -86,9 +86,28 @@ std::string to_hex(const std::vector<uint8_t>& data) {
 }
 void print_relic_curves_paramters()
 {
-    ep_t g1; ep_null(); ep_new(); ep_curve_get_gen(g1);
-    ep2_t g2;ep2_null();ep2_new(); ep2_curve_get_gen(g2);
-    gt_t gt; gt_null(); gt_new();
+    ep_t g1; ep_null(g1); ep_new(g1); ep_curve_get_gen(g1);
+    ep2_t g2;ep2_null(g2);ep2_new(g2); ep2_curve_get_gen(g2);
+    gt_t gt; gt_null(gt); gt_new(gt);
+    pc_map(gt,g1,g2); 
+    size_t ep_len=ep_size_bin(g1,1);
+    ssize_t ep2_len=ep2_size_bin(g2,1);
+    size_t gt_len=gt_size_bin(gt,1);
+    std::cout<<"|G1|="<<ep_len<<std::endl;
+    std::cout<<"|G2|"<<ep2_len<<std::endl;
+    std::cout<<"|G_T|"<<gt_len<<std::endl;
+    std::vector<uint8_t> g1_ser=ps::serialize_ep(g1);
+    std::vector<uint8_t> g2_ser=ps::serialize_ep2(g2);
+    std::vector<uint8_t> gt_ser=ps::serialize_gt(gt);
+    std::cout << "G1 hex: " << to_hex(g1_ser) << std::endl;
+    std::cout << "G2 hex: " << to_hex(g2_ser) << std::endl;
+    std::cout << "GT hex: " << to_hex(gt_ser) << std::endl;
+}
+void print_relic_curves_static_paramters()
+{
+    ep_t g1; ep_null(g1); ep_new(g1); ps::get_static_g1(g1);
+    ep2_t g2;ep2_null(g2); ep2_new(g2); ps::get_static_g2(g2);
+    gt_t gt; gt_null(gt); gt_new(gt);
     pc_map(gt,g1,g2); 
     size_t ep_len=ep_size_bin(g1,1);
     ssize_t ep2_len=ep2_size_bin(g2,1);
@@ -105,12 +124,14 @@ void print_relic_curves_paramters()
 }
 int main() {
     ps::init_relic();
-    ps::set_static_generators();
+    // ps::set_static_generators();
     SP sp("sp1");
     sp.init_keys();
     std::cout << "SP initialized." << std::endl;
     // cout the Relic setup such as g1 and g2 as well as the sizes of lengths of G1 G2 and Gt
-    print_relic_curves_paramters();    
+    print_relic_curves_paramters();   
+    print_relic_curves_static_paramters();   
+     
     // ps::GlobalParams gp;
     // // sp.export_global_params(gp);
     // sp.set_global_params_from_file("global_params.dat");

@@ -3,14 +3,52 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <stdexcept>
-
+#include <cstdint>
 namespace ps {
 
 void init_relic() {
     if (core_init() != RLC_OK) throw std::runtime_error("RELIC core_init failed");
     if (pc_param_set_any() != RLC_OK) throw std::runtime_error("RELIC pairings not available");
 }
-
+std::vector<uint8_t> hex_to_bytes(const std::string &hex) {
+    if (hex.size() % 2 != 0) {
+        throw std::invalid_argument("Hex string must have even length");
+    }
+    std::vector<uint8_t> bytes;
+    bytes.reserve(hex.size() / 2);
+    for (size_t i = 0; i < hex.size(); i += 2) {
+        uint8_t byte = (uint8_t)std::stoul(hex.substr(i, 2), nullptr, 16);
+        bytes.push_back(byte);
+    }
+    return bytes;
+}
+void get_static_g1(ep_t g1)
+{
+    // ep_t g1;
+    // ep_null(g1); ep_new(g1);
+    std::vector<uint8_t> g1_bytes = hex_to_bytes("022523648240000001ba344d80000000086121000000000013a700000000000012");
+    ep_read_bin(g1, g1_bytes.data(), g1_bytes.size());
+    // ep_t G1;
+    // ep_null(G1);
+    // ep_new(G1);
+    // ep_read_bin(G1, G1_BYTES, sizeof(G1_BYTES));
+    // ep_copy(g1,G1);
+    // ep_free(G1);
+}
+void get_static_g2(ep2_t g2)
+{
+    // ep2_t g2;
+    // ep2_null(g2); ep2_new(g2);
+    std::vector<uint8_t> g2_bytes = hex_to_bytes("02061a10bb519eb62feb8d8c7e8c61edb6a4648bbb4898bf0d91ee4224c803fb2b0516aaf9ba737833310aa78c5982aa5b1f4d746bae3784b70d8c34c1e7d54cf3");
+    ep2_read_bin(g2, g2_bytes.data(), g2_bytes.size());
+    // ep2_t G2;
+    // ep2_null(G2);
+    // ep2_new(G2);
+    // ep2_read_bin(G2, G2_BYTES, sizeof(G2_BYTES));
+    // ep2_copy(g2,G2);
+    // ep2_free(G2);
+    // return G2;
+}
 void set_static_generators() {
 
        ep_t G1;
