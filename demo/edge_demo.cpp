@@ -70,7 +70,7 @@ std::string to_hex(const std::vector<uint8_t>& data) {
 void print_relic_curves_paramters()
 {
     ep_t g1; ep_null(); ep_new(); ep_curve_get_gen(g1);
-    ep2_t g2;ep2_null();ep2_new(); ep2_curve_get_gen(g2);
+    ep2_t g2; ep2_null();ep2_new(); ep2_curve_get_gen(g2);
     gt_t gt; gt_null(); gt_new();
     pc_map(gt,g1,g2); 
     size_t ep_len=ep_size_bin(g1,1);
@@ -88,6 +88,7 @@ void print_relic_curves_paramters()
 }
 int main() {
     ps::init_relic();
+    ps::set_static_generators();
     Edge edge;
     print_relic_curves_paramters();
     ps::SPPublicParams spp;

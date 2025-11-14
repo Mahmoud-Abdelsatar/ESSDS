@@ -105,6 +105,7 @@ void print_relic_curves_paramters()
 }
 int main() {
     ps::init_relic();
+    ps::set_static_generators();
     SP sp("sp1");
     sp.init_keys();
     std::cout << "SP initialized." << std::endl;
