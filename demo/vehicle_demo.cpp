@@ -5,10 +5,12 @@
 #include<utility>
 #include <cmath>
 #include <numeric>
+#include <sstream>
+#include <iomanip>
 using namespace ps;
 using namespace std;
 template <typename F>
-pair<double, double> benchmark_stats(F func, int inner_loop = 10, int outer_loop = 10) {
+pair<double, double> benchmark_stats(F func, int inner_loop = 100, int outer_loop = 1000) {
     vector<double> times;
     times.reserve(outer_loop);
 
@@ -75,10 +77,36 @@ bool import_sp_public_key(std::vector<uint8_t> &spparams_ser)
     //     
     return true;
 }
-
+std::string to_hex(const std::vector<uint8_t>& data) {
+    std::ostringstream oss;
+    for (uint8_t b : data) {
+        oss << std::hex << std::setw(2) << std::setfill('0') << (int)b;
+    }
+    return oss.str();
+}
+void print_relic_curves_paramters()
+{
+    ep_t g1; ep_null(); ep_new(); ep_curve_get_gen(g1);
+    ep2_t g2;ep2_null();ep2_new(); ep2_curve_get_gen(g2);
+    gt_t gt; gt_null(); gt_new();
+    pc_map(gt,g1,g2); 
+    size_t ep_len=ep_size_bin(g1,1);
+    ssize_t ep2_len=ep2_size_bin(g2,1);
+    size_t gt_len=gt_size_bin(gt,1);
+    std::cout<<"|G1|="<<ep_len<<std::endl;
+    std::cout<<"|G2|"<<ep2_len<<std::endl;
+    std::cout<<"|G_T|"<<gt_len<<std::endl;
+    std::vector<uint8_t> g1_ser=ps::serialize_ep(g1);
+    std::vector<uint8_t> g2_ser=ps::serialize_ep2(g2);
+    std::vector<uint8_t> gt_ser=ps::serialize_gt(gt);
+    std::cout << "G1 hex: " << to_hex(g1_ser) << std::endl;
+    std::cout << "G2 hex: " << to_hex(g2_ser) << std::endl;
+    std::cout << "GT hex: " << to_hex(gt_ser) << std::endl;
+}
 int main() {
     ps::init_relic();
     Vehicle v("veh1");
+    print_relic_curves_paramters();
     ps::SPPublicParams spp;
     // try
     // {

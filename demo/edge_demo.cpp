@@ -1,4 +1,6 @@
 #include<iostream>
+#include <sstream>
+#include <iomanip>
 #include "edge.hpp"
 #include "socketmanager.hpp"
 using namespace ps;
@@ -58,9 +60,36 @@ bool import_sp_public_key(std::vector<uint8_t> &spparams_ser)
     //     
     return true;
 }
+std::string to_hex(const std::vector<uint8_t>& data) {
+    std::ostringstream oss;
+    for (uint8_t b : data) {
+        oss << std::hex << std::setw(2) << std::setfill('0') << (int)b;
+    }
+    return oss.str();
+}
+void print_relic_curves_paramters()
+{
+    ep_t g1; ep_null(); ep_new(); ep_curve_get_gen(g1);
+    ep2_t g2;ep2_null();ep2_new(); ep2_curve_get_gen(g2);
+    gt_t gt; gt_null(); gt_new();
+    pc_map(gt,g1,g2); 
+    size_t ep_len=ep_size_bin(g1,1);
+    ssize_t ep2_len=ep2_size_bin(g2,1);
+    size_t gt_len=gt_size_bin(gt,1);
+    std::cout<<"|G1|="<<ep_len<<std::endl;
+    std::cout<<"|G2|"<<ep2_len<<std::endl;
+    std::cout<<"|G_T|"<<gt_len<<std::endl;
+    std::vector<uint8_t> g1_ser=ps::serialize_ep(g1);
+    std::vector<uint8_t> g2_ser=ps::serialize_ep2(g2);
+    std::vector<uint8_t> gt_ser=ps::serialize_gt(gt);
+    std::cout << "G1 hex: " << to_hex(g1_ser) << std::endl;
+    std::cout << "G2 hex: " << to_hex(g2_ser) << std::endl;
+    std::cout << "GT hex: " << to_hex(gt_ser) << std::endl;
+}
 int main() {
     ps::init_relic();
     Edge edge;
+    print_relic_curves_paramters();
     ps::SPPublicParams spp;
     // try
     // {
@@ -125,7 +154,7 @@ int main() {
             // Edge receives ciphertext from SP
             std::vector<uint8_t> ct_ser; // Placeholder: actual code to receive ct_ser from network
             // For demo, we can read from file or assume ct_ser is set
-            for(int i=0;i<100;i++)
+            for(int i=0;i<100000;i++)
                 receive_ct_from_sp(ct_ser, edge, reenc_ct);
             
         }
@@ -133,7 +162,7 @@ int main() {
             // Edge send re-encrypted CT to Vehicle
             // Placeholder: actual network code to send reenc_ct to Vehicle
             std::cout << "Edge sent re-encrypted ciphertext to Vehicle." << std::endl;
-            for(int i=0;i<100;i++)
+            for(int i=0;i<100000;i++)
                 send_reenc_ct_to_vehicle(reenc_ct);
         }
     } while (n!=-1 );
