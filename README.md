@@ -122,7 +122,7 @@ Similarly, the other components can be executed using:
 
 The demo currently supports **one operation at a time**. Follow the instructions displayed by each executable and select the required operation from the available options.
 
-## Demo Components
+<!-- ## Demo Components
 
 The ESSDS demo represents the following entities:
 
@@ -131,5 +131,5 @@ The ESSDS demo represents the following entities:
 | **TA** | Trusted Authority responsible for system initialization and management of cryptographic parameters and credentials. |
 | **SP** | Service Provider responsible for generating and securely sharing data with authorized subscriber vehicles. |
 | **Edge Server** | Edge infrastructure that assists with data distribution and communication between the service provider and vehicles. |
-| **Vehicle** | Subscriber vehicle that receives and accesses authorized data from the service provider. |
+| **Vehicle** | Subscriber vehicle that receives and accesses authorized data from the service provider. | -->
 
