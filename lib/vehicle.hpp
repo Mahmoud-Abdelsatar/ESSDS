@@ -27,6 +27,9 @@ private:
     std::string id;
     bn_t x_i;
     ep_t w1; ep2_t w2;
+    ep_t w3; // additional group secret for vehicle
+    ep2_t A; // additional group secret for vehicle
+    std::vector<uint8_t> derived_key; // derived symmetric key from GT element
     std::vector<uint8_t> gsk_sym; // derived symmetric key for group
     ps::SPPublicParams sp_params_;
     ps::GlobalParams gp_params_;

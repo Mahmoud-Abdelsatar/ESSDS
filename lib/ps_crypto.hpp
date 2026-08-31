@@ -158,6 +158,8 @@ struct GroupSecretMaterial
     bn_t x;
     ep_t w1;
     ep2_t w2;
+    ep_t w3;
+    ep2_t A;
 };
 // struct ElGamalSignature {
 //     ep_t R;

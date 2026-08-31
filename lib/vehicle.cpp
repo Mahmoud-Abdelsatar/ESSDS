@@ -33,8 +33,18 @@ void Vehicle::recieve_group_secret_material(const ps::GroupSecretMaterial &gsm) 
     bn_copy(x_i, gsm.x);
     ep_copy(w1, gsm.w1);
     ep2_copy(w2, gsm.w2);
+    ep_copy(w3, gsm.w3);
+    ep2_copy(A, gsm.A);
     gt_t e; gt_null(e); gt_new(e);
-    pc_map(e, w1, w2);
+    gt_t e1; gt_null(e1); gt_new(e1);
+    gt_t e2; gt_null(e2); gt_new(e2);
+    gt_t e2inv; gt_null(e2inv); gt_new(e2inv);
+    //compute e(w1,w2)/e(w3,A)
+    pc_map(e1, w1, w2);
+    pc_map(e2, w3, A);
+    gt_inv(e2inv, e2);
+    gt_mul(e, e1, e2inv);
+
     gsk_sym = derive_key_from_gt(e);
     gt_free(e);
     std::string hex;
@@ -52,8 +62,10 @@ void Vehicle::receive_group_secret_material_serialized(const std::vector<uint8_t
     size_t bn_len = bn_size_bin(order);
     size_t ep_len = ep_size_bin(w1, 1);
     size_t ep2_len= ep2_size_bin(w2,1);
-    
-    std::cout<<"Lengths of bn:"<<bn_len<<", ep"<<ep_len<<", ep2"<<ep2_len<<std::endl;
+    size_t ep_len_w3 = ep_size_bin(w3, 1);
+    size_t ep2_len_A = ep2_size_bin(A, 1);
+    std::cout << "Vehicle: expected sizes - bn: " << bn_len << ", ep: " << ep_len << ", ep2: " << ep2_len << ", w3 ep: " << ep_len_w3 << ", A ep2: " << ep2_len_A << std::endl;
+    // std::cout<<"Lengths of bn:"<<bn_len<<", ep"<<ep_len<<", ep2"<<ep2_len<<std::endl;
 
     size_t offset=0;
     bn_read_bin(x_i, gsm_ser.data() + offset, bn_len);
@@ -63,11 +75,23 @@ void Vehicle::receive_group_secret_material_serialized(const std::vector<uint8_t
     offset += ep_len;
     std::cout<<"w1 is read"<<std::endl;
     ep2_read_bin(w2, gsm_ser.data() + offset, ep2_len);
-
+    offset += ep2_len;
+    std::cout<<"w2 is read"<<std::endl;
+    ep_read_bin(w3, gsm_ser.data() + offset, ep_len);
+    offset += ep_len;
+    std::cout<<"w3 is read"<<std::endl;
+    ep2_read_bin(A, gsm_ser.data() + offset, ep2_len);
     std::cout << "Vehicle " << id << " received group secret material." << std::endl;
     // derive gsk_sym
     gt_t e; gt_null(e); gt_new(e);
-    pc_map(e, w1, w2);
+    gt_t e1; gt_null(e1); gt_new(e1);
+    //compute e(w1,w2)/e(w3,A)
+    pc_map(e1, w1, w2);
+    gt_t e2; gt_null(e2); gt_new(e2);
+    pc_map(e2, w3, A);
+    gt_t e2inv; gt_null(e2inv); gt_new(e2inv);
+    gt_inv(e2inv, e2);
+    gt_mul(e, e1, e2inv);
     gsk_sym = derive_key_from_gt(e);
     gt_free(e);
     std::string hex;

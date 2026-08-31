@@ -28,7 +28,7 @@ void SP::init_keys() {
     ep_curve_get_ord(order);
     ep_t g1; ep_null(g1); ep_new(g1); ep_curve_get_gen(g1);
     ep2_t g2; ep2_null(g2); ep2_new(g2); ep2_curve_get_gen(g2);
-    
+
     bn_rand_mod(sk1, order);
     ep_mul_basic(pk1, g1, sk1);
     ep2_free(g2);
@@ -75,22 +75,36 @@ GroupSecretMaterial SP::generate_group_material_for_vehicle() const {
     bn_null(gsm.x); bn_new(gsm.x);
     ep_null(gsm.w1); ep_new(gsm.w1);
     ep2_null(gsm.w2); ep2_new(gsm.w2);
+    ep_null(gsm.w3); ep_new(gsm.w3);
+    ep2_null(gsm.A); ep2_copy(gsm.A, A);
+
      bn_t order;
     bn_null(order);
     bn_new(order);
     ep_curve_get_ord(order);
+    ep_t g1; ep_null(g1); ep_new(g1); ep_curve_get_gen(g1);
+    ep_t g1alpha; ep_null(g1alpha); ep_new(g1alpha);
     // generate random x
     bn_rand_mod(gsm.x, order);
     // w1 = h^{x + sk}
+    bn_t alpha; bn_null(alpha); bn_new(alpha);
+    bn_rand_mod(alpha, order);
     bn_t x_plus_sk; bn_null(x_plus_sk); bn_new(x_plus_sk);
     bn_add(x_plus_sk, gsm.x, sk);
     ep_mul_basic(gsm.w1, h, x_plus_sk);
+    //compute g1^{alpha}
+    ep_mul_basic(g1alpha, g1, alpha);
+    //w1=w1*g1^{alpha}
+    ep_add(gsm.w1, gsm.w1, g1alpha);
     // w2 = A^{1/(x + sk)}
     bn_t inv; bn_null(inv); bn_new(inv);
     bn_mod_inv(inv, x_plus_sk,order);
     ep2_mul_basic(gsm.w2, A, inv);
-    bn_free(x_plus_sk); bn_free(inv)
-    bn_free(order);
+    //w3 = g1^{alpha/(xi+sk)}
+    // bn_mod_inv(inv, x_plus_sk, order);
+    ep_mul_basic(gsm.w3, g1alpha, inv);
+    bn_free(x_plus_sk); bn_free(inv);
+    bn_free(order); bn_free(alpha); ep_free(g1); ep_free(g1alpha);
     return gsm;
 }
 
@@ -99,6 +113,8 @@ std::vector<uint8_t> SP::generate_group_material_serialized_for_vehicle() const 
     auto x_ser = ps::serialize_bn(gsm.x);
     auto w1_ser = ps::serialize_ep(gsm.w1);
     auto w2_ser = ps::serialize_ep2(gsm.w2);
+    auto w3_ser = ps::serialize_ep(gsm.w3);
+    auto A_ser = ps::serialize_ep2(gsm.A);
     // cout w2_ser size for debug
     std::cout << "SP: serialized w2 size = " << w2_ser.size() << " bytes." << std::endl;    
     std::vector<uint8_t> out;
@@ -106,8 +122,10 @@ std::vector<uint8_t> SP::generate_group_material_serialized_for_vehicle() const 
     out.insert(out.end(), x_ser.begin(), x_ser.end());
     out.insert(out.end(), w1_ser.begin(), w1_ser.end());
     out.insert(out.end(), w2_ser.begin(), w2_ser.end());
+    out.insert(out.end(), w3_ser.begin(), w3_ser.end());
+    out.insert(out.end(), A_ser.begin(), A_ser.end());
     // free
-    bn_free(gsm.x); ep_free(gsm.w1); ep2_free(gsm.w2);
+    bn_free(gsm.x); ep_free(gsm.w1); ep2_free(gsm.w2); ep_free(gsm.w3); ep2_free(gsm.A);
     return out;
 }
 

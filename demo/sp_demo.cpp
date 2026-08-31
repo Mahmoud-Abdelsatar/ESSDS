@@ -39,7 +39,7 @@ bool send_reenc_key_to_edge(const std::vector<uint8_t>& rk_ser) {
     // Placeholder: actual network code to send rk_ser to edge server
     std::cout << "Sending re-encryption key to edge server, size = " << rk_ser.size() << " bytes." << std::endl;
     // e.g., open TCP connection, send data, close connection
-    int sock=SocketManager::connectTo("192.168.1.3", 5000);
+    int sock=SocketManager::connectTo("127.0.0.1", 5000);
     SocketManager::sendData(sock, rk_ser);
     SocketManager::closeSock(sock);
     return true;
@@ -48,7 +48,7 @@ bool send_ct_to_edge(const std::vector<uint8_t>& ct_ser) {
     // Placeholder: actual network code to send ct_ser to edge server
     std::cout << "Sending ciphertext to edge server, size = " << ct_ser.size() << " bytes." << std::endl;
     // e.g., open TCP connection, send data, close connection
-    int sock=SocketManager::connectTo("192.168.1.3", 5000);
+    int sock=SocketManager::connectTo("127.0.0.1", 5000);
     SocketManager::sendData(sock, ct_ser);
     std::vector<uint8_t> ack=SocketManager::recvData(sock);
     SocketManager::closeSock(sock);
