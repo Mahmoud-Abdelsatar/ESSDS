@@ -1,4 +1,4 @@
-# ESSDS Scheme
+# ESSDS Framework
 
 ESSDS (Efficient and Scalable Secure Data Sharing) is a secure data-sharing framework designed for Internet of Vehicles (IoV) systems. It enables Service Providers (SPs) to securely share data with a large number of subscriber vehicles while providing confidentiality, integrity, authentication, and scalable group-based data distribution.
 
